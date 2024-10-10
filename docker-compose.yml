@@ -1,26 +1,5 @@
 version: '3'
 services:
-  bot:
-    build: ./bot
-    environment:
-      - DATABASE_URL=postgresql://user:password@db/rss
-      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
-    volumes:
-      - ./bot:/app
-    depends_on:
-      - db
-    command: python bot.py
-
-  monitoring:
-    build: ./monitoring
-    environment:
-      - DATABASE_URL=postgresql://user:password@db/rss
-    volumes:
-      - ./monitoring:/app
-    depends_on:
-      - db
-    command: python monitor.py
-
   db:
     image: postgres:13
     environment:
@@ -29,11 +8,35 @@ services:
       POSTGRES_DB: rss
     volumes:
       - db_data:/var/lib/postgresql/data
-    networks:
-      - app_network
+
+  bot:
+    build:
+      context: .
+      dockerfile: bot/Dockerfile
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+    volumes:
+      - .:/app
+    command: python -m bot.bot
+
+  monitoring:
+    build:
+      context: .
+      dockerfile: monitoring/Dockerfile
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+    volumes:
+      - .:/app
+    command: python -m monitoring.monitor
+
 
 volumes:
   db_data:
 
 networks:
   app_network:
+    driver: bridge

@@ -2,9 +2,8 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
 COPY . .
 
-CMD ["python", "monitor.py"]
+RUN pip install -r monitoring/requirements.txt
+
+CMD ["python", "monitoring/monitor.py"]
