@@ -1,0 +1,3 @@
+feedparser
+SQLAlchemy==1.4.47
+psycopg2-binary
